@@ -43,16 +43,17 @@ private Collection<Person> persons;
         tryout.createsString(String::toUpperCase, "hello");
     }
 
+    /**
+     * Test custom @functionalinterface.
+     */
     public void testCustomFunctional() {
         Foo foo = str -> "Hello, "+str;
         System.out.println(foo.bar("World"));
-
-
-        Runnable r = () -> System.out.println("goo");
-        r.run();
-
     }
-    
+
+    /**
+     * Test multi statement closure.
+     */
     public void testMultilineClosure() {
         System.out.println(createsString(s -> {
             s = s.toUpperCase();
@@ -67,6 +68,11 @@ private Collection<Person> persons;
         return strCreator.apply(argument);
     }
 
+    /**
+     * Test higher order function.
+     * @param func a function which accepts a String and returns another one.
+     * @param argument the argument on which the first argument is applied.
+     */
     public void acceptsFunction(Function<String, String> func, String argument) {
         log("The result has length %s", func.apply(argument).length());
     }
@@ -77,7 +83,7 @@ private Collection<Person> persons;
     }
 
     /**
-     * Try streaming the in memory Set.
+     * Streaming the in memory Set, serial and parallel.
      */
     public void streamSet() throws IOException {
         // lambda expression
@@ -103,6 +109,9 @@ private Collection<Person> persons;
         log("total weight of all persons combined = %s (%s ms)", total, time);
     }
 
+    /**
+     * Test the {@link ExecutionTimer}.
+     */
     public void testExecutionTimer() {
         log("testExecutionTimer");
 
@@ -111,10 +120,14 @@ private Collection<Person> persons;
         int total1 = time(serial, persons);
         log("total 1 = %s", total1);
 
-        // even shorter:
+        // even shorter syntax:
         log("parallel");
         int total2 = time((coll -> coll.parallelStream().map(Person::getWeight).reduce(0, (w1, w2) -> w1 + w2)), persons);
-        log("total 1 = %s", total2);
+        log("total 2 = %s", total2);
+
+        log("Calling method inside log:" + time(serial, persons));
+
+        log("Calling closure inside log:" + time((coll -> coll.parallelStream().map(Person::getWeight).reduce(0, (w1, w2) -> w1 + w2)), persons));
 
     }
 
@@ -159,9 +172,9 @@ private Collection<Person> persons;
         }
 
         private Integer getWeight() {
-            // even wegen...
+            // artifially slow method...
             try {
-                Thread.sleep(500);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 // ignored
             }
