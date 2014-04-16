@@ -1,0 +1,434 @@
+<!--
+Google IO 2012/2013 HTML5 Slide Template
+
+Authors: Eric Bidelman <ebidel@gmail.com>
+         Luke Mahé <lukem@google.com>
+
+URL: https://code.google.com/p/io-2012-slides
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" media="all" href="theme/css/default.css">
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="theme/css/phone.css">
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="js/slides" src="js/require-1.0.8.min.js"></script>
+</head>
+<body style="opacity: 0">
+
+<slides class="layout-widescreen">
+
+  <slide class="title-slide segue nobackground">
+    <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
+    <hgroup class="auto-fadein">
+      <h1 data-config-title><!-- populated from slide_config.json --></h1>
+      <h2 data-config-subtitle><!-- populated from slide_config.json --></h2>
+      <p data-config-presenter><!-- populated from slide_config.json --></p>
+    </hgroup>
+  </slide>
+
+  <slide class="nobackground">
+      <hgroup>
+          <h2>contents</h2>
+      </hgroup>
+      <article>
+          <ul class="build">
+              <li>date/time API improvements</li>
+              <li>project Nashorn</li>
+              <li>project Lambda</li>
+          </ul>
+      </article>
+  </slide>
+
+  <slide class="nobackground">
+      <hgroup>
+          <h2>Date/time API improvements</h2>
+      </hgroup>
+      <article>
+          <ul>
+              <li>package <code>java.time</code>, based on Joda Time</li>
+              <li><code>LocalDate</code> and friends: local date time, no time zone</li>
+              <li><code>OffsetDateTime</code> and friends: zoned date/time</li>
+              <li><code>Instant</code>, <code>Duration</code>, <code>Period</code>: easy date/time calculation</li>
+          </ul>
+          <pre class="prettyprint">
+Instant now = Instant.now();                       // 2014-04-07T10:46:06.121Z
+Instant earlier = now.minus(Period.ofDays(2));     // 2014-04-05T10:46:06.121Z
+Period.between(LocalDate.now(), LocalDate.now().plusDays(2));  // P2D
+          </pre>
+      </article>
+  </slide>
+
+  <slide class="nobackground">
+      <hgroup>
+          <h2>project Nashorn</h2>
+      </hgroup>
+      <article>
+          <ul>
+              <li>light-weight performant Javascript runtime</li>
+              <li>replaces the Mozilla Rhino based engine</li>
+              <li>early tests indicate 3-5 times faster</li>
+              <li>better ECMAScript-262 compliance</li>
+          </ul>
+
+          <pre class="prettyprint" data-lang="java">
+
+ScriptEngineManager manager = new ScriptEngineManager();
+ScriptEngine nashorn = manager.getEngineByName("nashorn");
+nashorn.eval("print('Hello, World!')");
+
+ScriptEngine js = manager.getEngineByExtension("js");
+js.eval("print ('Hello, again!');");
+          </pre>
+      </article>
+  </slide>
+
+  <slide class="nobackground">
+      <hgroup>
+          <h2>project Nashorn</h2>
+      </hgroup>
+      <article>
+          <p>Java/JavaScript (JJS): interactive Javascript shell with Java integration</p>
+          <pre class="prettyprint" data-lang="java">
+ton@ton-Latitude-E6520:~$ jjs
+jjs> var Strng = Java.type("java.lang.String")
+jjs> var hello = new Strng("Hello, World!")
+jjs> hello
+Hello, World!
+jjs> hello.toUpperCase()
+HELLO, WORLD!
+jjs>
+          </pre>
+      </article>
+  </slide>
+
+  <slide class="nobackground">
+      <hgroup>
+          <h2>project Nashorn</h2>
+      </hgroup>
+      <article>
+          <p>Scripting extension for shell access</p>
+          <p>heredocs: multiline strings a la bash, Perl, Ruby</p>
+          <ul><li>write shell scripts in Javascript: backticks execute commands</li></ul>
+          <pre class="prettyprint">
+ton@ton-Latitude-E6520:~$ jjs -scripting
+jjs> var dirlist = `ls -l`.split("\n")
+jjs> dirlist[1]
+drwxrwxr-x  2 ton ton      4096 nov 28 18:15 5.4.2
+jjs> dirlist.length
+87
+          </pre>
+      </article>
+  </slide>
+
+  <slide class="nobackground">
+      <hgroup>
+          <h2>project Nashorn</h2>
+      </hgroup>
+      <article>
+          <p>
+          <ul>
+              <li><code>$ENV</code> provides the shell environment</li>
+              <li><code>$ARG</code> provides array of script arguments</li>
+              <li><code>$EXEC</code> runs a command, stdout goes to <code>$OUT</code>, stderr to <code>$ERR</code></li>
+          </ul></p>
+          <pre class="prettyprint">
+ton@ton-Latitude-E6520:~/bin$ cat jstest.js
+#!/usr/bin/jjs -scripting
+for (env in $ENV) {
+   print("${env} is set to: "+$ENV[env]);
+}
+
+ton@ton-Latitude-E6520:~/bin$ ./jstest.js
+XAUTHORITY is set to: /home/ton/.Xauthority
+LC_MEASUREMENT is set to: nl_NL.UTF-8
+# ... (and so on)
+
+          </pre>
+      </article>
+  </slide>
+
+  <slide class="nobackground">
+      <hgroup>
+          <h2>Project Lambda</h2>
+      </hgroup>
+      <article>
+        <p>functional programming in Java</p>
+      </article>
+  </slide>
+
+  <slide class="nobackground">
+    <hgroup>
+      <h2>Java7 example fragment</h2>
+    </hgroup>
+    <article class="smaller">
+      <p>portal foundation: BaseContainer.getChildrenByArea(); create a map of children per area.
+      <pre class="prettyprint" data-lang="java">
+// SPEED-285: want to get a map of children per area in 1 call.
+private Map&lt;String, List&lt;Item&gt;&gt; childrenByArea;
+
+if (childrenByArea == null) {
+  childrenByArea = new HashMap&lt;String, List&lt;Item&gt;&gt;();
+
+  for (Item item : this.getChildren()) {
+      String area = ItemAreaComparator.getArea(item);
+      if (childrenByArea.get(area) == null) {
+          childrenByArea.put(area, new ArrayList&lt;Item&gt;());
+      }
+      childrenByArea.get(area).add(item);
+  }
+}
+      </pre>
+    </article>  
+  </slide>
+
+  <slide class="nobackground">
+    <hgroup>
+      <h2>Java8: example, converted</h2>
+    </hgroup>
+    <article>
+      <pre class="prettyprint" data-lang="java">
+if (childrenByArea == null)
+  childrenByArea = children.stream().collect(
+          Collectors.groupingBy(item -> ItemAreaComparator.getArea(item)));
+  }
+
+// or with direct method reference:
+children.stream().collect(Collectors.groupingBy(ItemAreaComparator::getArea));
+      </pre>
+      <p>Unit tests all pass without modification</p>
+        <p>Moving parts:</p>
+      <ul class="build">
+        <li>closures</li>
+        <li>method reference</li>
+        <li>stream API</li>
+      </ul>
+    </article>  
+  </slide>
+
+  <slide class="nobackground">
+    <hgroup>
+      <h2>Java8: Closures</h2>
+    </hgroup>
+    <article>
+        <p>Any implementation of a functional interface</p>
+      <pre class="prettyprint" data-lang="java">
+        @FunctionalInterface
+      </pre>
+        <p>
+        Rule, and its exceptions
+      <ul class="build">
+        <li>exactly one abstract method</li>
+        <li>overrides of methods in Object don't count</li>
+        <li>default methods don't count<br></li>
+        <li>optional annotation, compiler hint<br>
+           if omitted, compile error in calling class<br>
+           if present, compiler error in interface definition<br>
+           error: "Multiple non-overriding abstract methods found"</li>
+      </ul></p>
+    </article>  
+  </slide>
+
+  <slide class="nobackground">
+    <hgroup>
+      <h2>Java8: default interface methods</h2>
+    </hgroup>
+    <article>
+      <pre class="prettyprint" data-lang="java">
+public interface HelloInterface {
+ <b>default</b> String getHello() <b>{
+    return "Hello!";
+ }</b>
+}
+
+public class defaultGreeter implements HelloInterface { }
+
+defaultGreeter.getHello();  // ===> "Hello!"
+      </pre>
+        <p>used in the JDK, for example to add the <code>stream()</code> method
+            to the base <code>Collection</code> interface</p>
+    </article>  
+  </slide>
+  
+  <slide class="nobackground">
+    <hgroup>
+      <h2>Java7: anonymous interface implementation</h2>
+    </hgroup>
+    <article>
+      <p>Ex.: create a case insensitive string comparator</p>
+      <pre class="prettyprint" data-lang="java">
+Comparator&lt;String&gt; c1 = new Comparator&lt;String&gt;() {
+    @Override
+    public int compare(String str1, String str2) {
+        return str1.toUpperCase().compareTo(str2.toUpperCase());
+    }
+};
+      </pre>
+      <ul class="build" list-style-type="none">
+        <li>Comparator is a @FunctionalInterface</li>
+        <li>has a lot of convenience static chaining methods since 1.8</li>
+      </ul>  
+    </article>  
+  </slide>
+
+  <slide class="nobackground">
+    <hgroup>
+      <h2>Java8: Closures</h2>
+    </hgroup>
+    <article>
+      <p>Create a case insensitive string comparator</p>
+      <pre class="prettyprint">
+Comparator&lt;String&gt; c2 =
+  (str1, str2) -> str1.toUpperCase().compareTo(str2.toUpperCase());
+      </pre>
+      <p>or using a method reference and static method in Comparable</p>
+      <pre class="prettyprint">
+
+Comparator&lt;String&gt; c2 = Comparator.comparing(String::toUpperCase);
+      </pre>
+    </article>  
+  </slide>
+
+    <slide class="nobackground">
+        <hgroup><h2>Java8: Closures</h2></hgroup>
+        <article>
+            <pre class="prettyprint">
+Comparator&lt;String&gt; c2 = Comparator.comparing(String::toUpperCase);
+
+// look up Comparator.comparing(...)
+public static &lt;T, U extends Comparable&lt;? super U&gt;&gt; Comparator&lt;T&gt; comparing(
+    Function&lt;? super T, ? extends U&gt; keyExtractor) {
+        return (Comparator&lt;T&gt; & Serializable)
+                (c1, c2) -> keyExtractor.apply(c1).compareTo(keyExtractor.apply(c2));
+        }
+    }
+            </pre>
+            <ul>
+                <li><code>Function</code>: one of the base interfaces in java.util.function</li>
+                    <li>basic function shapes can all be used in lambdas
+                    <ul>
+                        <li><code>Function</code>: unary function from T to R</li>
+                        <li><code>Consumer</code>: unary function from T to void</li>
+                        <li><code>Predicate</code>: unary function from T to boolean</li>
+                        <li><code>Supplier</code>: nil to R</li>
+                    </ul>
+                </li>
+            </ul>
+        </article>
+    </slide>
+
+    <slide class="nobackground">
+        <hgroup>
+            <h2>Java8: Functional interfaces</h2>
+        </hgroup>
+        <article>
+            <p>Can provide target type for lambda expressions and method references in multiple contexts<br>
+            Package javadoc examples:</p>
+            <pre class="prettyprint">
+// Assignment context
+Predicate&lt;String&gt; p = String::isEmpty;
+
+// Method invocation context
+stream.filter(e -> e.getSize() > 10)...
+
+// Cast context
+stream.map((ToIntFunction) e -> e.getSize())...
+            </pre>
+
+        </article>
+    </slide>
+
+  <slide class="nobackground">
+      <hgroup>
+          <h2>Java8: Stream</h2>
+      </hgroup>
+      <article>
+          <pre class="prettyprint">
+childrenByArea = children.stream().collect(
+        Collectors.groupingBy(ItemAreaComparator::getArea));
+// ...
+public interface Stream extends BaseStream&lt;T, Stream&lt;T&gt;&gt;
+
+public interface BaseStream&lt;T, S extends BaseStream&lt;T,S&gt;&gt; extends AutoCloseable
+
+          </pre>
+          <ul>
+              <li>Javadoc: A sequence of elements supporting serial and parallel aggregate operations.</li>
+              <li>(AutoCloseable: since Java 1.7, can be used in try-with-resources)</li>
+              <li>Interface methods accept <code>Function</code>, so accept closures</li>
+              <li>intermediate operations: <code>map</code>, <code>filter</code>... ;terminal operations: <code>reduce</code>...</li>
+          </ul>
+      </article>
+  </slide>
+
+  <slide class="nobackground">
+      <hgroup>
+          <h2>Java8: Stream</h2>
+      </hgroup>
+      <article>
+          <p>Instant parallelization
+          <ul>
+              <li><code>Collection.parallelStream()</code> returns a possibly parallel stream</li>
+              <li>internally uses the <code>spliterator()</code> method</li>
+              <li><code>Spliterator</code> implementation handles traversion and partitioning</li>
+              <li>calling <code>parallel()</code> on a stream makes it parallel</li>
+              <li>calling <code>sequential()</code> on a parallel stream makes it sequential</li>
+          </ul>
+          Do not overuse!
+          </p>
+      </article>
+  </slide>
+
+  <slide class="nobackground">
+      <hgroup>
+          <h2>Java8: playing with power</h2>
+      </hgroup>
+      <article>
+          <p>
+              <pre class="prettyprint">
+public class ExecutionTimer {
+    public static &lt;T,R&gt; R time(Function&lt;T,R&gt; function, T argument) {
+        long start = System.currentTimeMillis();
+        R result = function.apply(argument);
+        System.out.println("execution took " +
+          (System.currentTimeMillis() - start) + "ms");
+        return result;
+    }
+}
+
+// usage example: total weight of a collection of Person objects
+int total2 = time((coll -> coll.parallelStream()
+          .map(Person::getWeight)
+          .reduce(0, (w1, w2) -> w1 + w2)), persons);
+              </pre>
+          </p>
+      </article>
+  </slide>
+
+  <slide class="nobackground">
+      <hgroup>
+          <h1>Questions?</h1>
+      </hgroup>
+  </slide>
+
+  <slide class="nobackground">
+      <hgroup>
+          <h1>Thank You!</h1>
+      </hgroup>
+  </slide>
+
+
+  <slide class="backdrop"></slide>
+
+</slides>
+
+<!--[if IE]>
+  <script src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
+  <script>CFInstall.check({mode: 'overlay'});</script>
+<![endif]-->
+</body>
+</html>
