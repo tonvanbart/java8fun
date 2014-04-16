@@ -1,1 +1,0 @@
-Some quick experiments with the new Java 8 features.
